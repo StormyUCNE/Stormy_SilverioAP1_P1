@@ -1,0 +1,13 @@
+﻿@page "/Index"
+@inject IToastService toastService
+@rendermode InteractiveServer
+<PageTitle>Registro Viajes Espaciales</PageTitle>
+<div>
+    <button @onclick="Show">Presiona</button>
+</div>
+
+@code {
+    void Show(){
+        toastService.ShowSuccess("Boton Presionado");
+    }
+}

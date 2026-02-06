@@ -1,3 +1,4 @@
+using Blazored.Toast;
 using Microsoft.EntityFrameworkCore;
 using Stormy_SilverioAP1_P1.Components;
 using Stormy_SilverioAP1_P1.DAL;
@@ -13,6 +14,8 @@ var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
 builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
 
 builder.Services.AddScoped<ViajesEspacialesService>();
+
+builder.Services.AddBlazoredToast();
 
 var app = builder.Build();
 
