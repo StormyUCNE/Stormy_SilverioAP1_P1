@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Stormy_SilverioAP1_P1.Components;
 using Stormy_SilverioAP1_P1.DAL;
+using Stormy_SilverioAP1_P1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddRazorComponents()
 
 var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
 builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
+
+builder.Services.AddScoped<ViajesEspacialesService>();
 
 var app = builder.Build();
 
