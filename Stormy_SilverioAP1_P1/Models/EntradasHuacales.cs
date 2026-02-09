@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 namespace Stormy_SilverioAP1_P1.Models;
-public class ViajesEspaciales
+public class EntradasHuacales
 {
     [Key]
-    public int VueloId { get; set; }
+    public int IdEntrada { get; set; }
 
     [Required(ErrorMessage = "Campo Obligatorio")]
     public DateTime Fecha { get; set; }
