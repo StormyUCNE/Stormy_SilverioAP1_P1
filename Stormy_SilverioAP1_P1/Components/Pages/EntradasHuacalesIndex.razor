@@ -20,6 +20,7 @@
                     <select class="form-select" @bind="Filtro">
                         <option value="">Seleccione una Opción</option>
                         <option value="Nombre">Nombre</option>
+                        <option value="Fecha">Fecha</option>
                         <option value="Cantidad">Cantidad</option>
                         <option value="Precio">Precio</option>
                     </select>
@@ -96,6 +97,11 @@
             else if (Filtro == "Cantidad")
                 if (int.TryParse(ValorFiltro, out int ValorFiltroEntero))
                     ListaHuacales = await entradasHuacalesService.Listar(h => h.Cantidad == ValorFiltroEntero);
+                else
+                    ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+            else if (Filtro == "Fecha")
+                if (DateOnly.TryParseExact(ValorFiltro, "dd/MM/yyyy", out var Fecha))
+                    ListaHuacales = await entradasHuacalesService.Listar(h => h.Fecha == Fecha);
                 else
                     ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
         }
