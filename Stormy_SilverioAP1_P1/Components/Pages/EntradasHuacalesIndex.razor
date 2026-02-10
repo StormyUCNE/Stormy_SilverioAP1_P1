@@ -1,0 +1,107 @@
+﻿@page "/EntradasHuacales/Index"
+@inject IToastService toastService
+@rendermode InteractiveServer
+@inject EntradasHuacalesService entradasHuacalesService
+<PageTitle>Registro de Entradas Huacales</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between">
+            <h5 class="card-title">Registro de Entradas Huacales</h5>
+            <a href="EntradasHuacales/Create" class="d-flex gap-2 btn btn-outline-primary">
+                <i class="bi bi-plus"></i>
+                <span>Crear</span>
+            </a>
+        </div>
+        <div class="card-body">
+            @*Label e Inputs*@
+            <div class="row">
+                <div class="col-lg-6">
+                    <label class="form-label">Seleccione una Opción</label>
+                    <select class="form-select" @bind="Filtro">
+                        <option value="">Seleccione una Opción</option>
+                        <option value="Nombre">Nombre</option>
+                        <option value="Cantidad">Cantidad</option>
+                        <option value="Precio">Precio</option>
+                    </select>
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar" @bind="ValorFiltro" />
+                        <button type="button" @onclick="Buscar" class="btn btn-primary bi bi-search"></button>
+                    </div>
+                </div>
+            </div>
+
+            @*Table*@
+            <div class="table-responsive mt-2">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>IdEntrada</th>
+                            <th>Fecha</th>
+                            <th>Nombre Cliente</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var h in ListaHuacales)
+                        {
+                            <tr>
+                                <td>@h.IdEntrada</td>
+                                <td>@h.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@h.NombreCliente</td>
+                                <td>@h.Cantidad</td>
+                                <td>@h.Precio</td>
+                                <td>
+                                    <a href="EntradasHuacales/Edit/@h.IdEntrada" class="btn btn-outline-primary bi bi-pencil-fill"></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @*Conteo y Total*@
+        <div class="card-footer d-flex justify-content-between">
+            <label>Cantidad: @ListaHuacales.Count()</label>
+            <label>Total: @ListaHuacales.Sum(h=>h.Precio)</label>
+        </div>   
+    </div>
+</div>
+
+@code {
+    public List<EntradasHuacales> ListaHuacales = new List<EntradasHuacales>();
+    public string Filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+    }
+
+    private async Task Buscar()
+    {
+        if (ValorFiltro.Trim() != "")
+        {
+            if (Filtro == "Nombre")
+                ListaHuacales = await entradasHuacalesService.Listar(h => h.NombreCliente.ToLower().Contains(ValorFiltro.ToLower()));
+            else if (Filtro == "Precio")
+                if (decimal.TryParse(ValorFiltro, out decimal ValorFiltroDecimal))
+                    ListaHuacales = await entradasHuacalesService.Listar(h => h.Precio == ValorFiltroDecimal);
+                else
+                    ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+            else if (Filtro == "Cantidad")
+                if (int.TryParse(ValorFiltro, out int ValorFiltroEntero))
+                    ListaHuacales = await entradasHuacalesService.Listar(h => h.Cantidad == ValorFiltroEntero);
+                else
+                    ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+        }
+        else
+        {
+            ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+        }             
+    }
+}

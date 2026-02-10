@@ -1,0 +1,71 @@
+﻿@page "/EntradasHuacales/Create"
+@inject IToastService toastService
+@rendermode InteractiveServer
+@inject EntradasHuacalesService entradasHuacalesService
+@inject NavigationManager navigationManager
+
+<PageTitle>Crear Entradas de Huacales</PageTitle>
+<EditForm Model="EntradasHuacales" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator/>
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h5 class="card-title">Crear Huacal</h5>
+            </div>
+
+            @*Inputs*@
+            <div class="card-body">
+                <div>
+                    <label class="form-label">Fecha</label>
+                    <InputDate @bind-Value="EntradasHuacales.Fecha" class="form-control"></InputDate>
+                    <ValidationMessage For="()=> EntradasHuacales.Fecha"/>
+                </div>
+                <div>
+                    <label class="form-label">Nombre Cliente</label>
+                    <InputText @bind-Value="EntradasHuacales.NombreCliente" class="form-control"></InputText>
+                    <ValidationMessage For="() => EntradasHuacales.NombreCliente" />
+                </div>
+                <div>
+                    <label class="form-label">Cantidad</label>
+                    <InputNumber @bind-Value="EntradasHuacales.Cantidad" class="form-control"></InputNumber>
+                    <ValidationMessage For="() => EntradasHuacales.Cantidad" />
+                </div>
+                <div>
+                    <label class="form-label">Precio</label>
+                    <InputNumber @bind-Value="EntradasHuacales.Precio" class="form-control"></InputNumber>
+                    <ValidationMessage For="() => EntradasHuacales.Precio" />
+                </div>
+            </div>
+            
+            @*Botones*@
+            <div class="card-footer d-flex justify-content-center">
+                <a href="EntradasHuacales/Index" class="d-flex gap-2 btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Volver</span>
+                </a>
+                <button class="btn btn-outline-primary">Guardar</button>
+            </div>
+        </div>
+
+    </div>
+</EditForm>
+
+
+@code {
+    public EntradasHuacales EntradasHuacales = new EntradasHuacales();
+
+    private async Task Guardar()
+    {
+        var creado = await entradasHuacalesService.Guardar(EntradasHuacales);
+        if (creado)
+        {
+            toastService.ShowSuccess("Huacal Creado Correctamente");
+            navigationManager.NavigateTo("EntradasHuacales/Index");
+        }
+        else
+        {
+            toastService.ShowSuccess("Huacal No Pudo Ser Creado Correctamente");
+        }
+    }
+}
