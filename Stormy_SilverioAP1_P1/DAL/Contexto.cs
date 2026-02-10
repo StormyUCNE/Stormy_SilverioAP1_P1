@@ -5,5 +5,5 @@ public class Contexto:DbContext
 {
     public Contexto(DbContextOptions<Contexto> options): base(options) { }
 
-    public DbSet<EntradasHuacales> ViajesEspaciales { get; set; }
+    public DbSet<EntradasHuacales> EntradasHuacales { get; set; }
 }
