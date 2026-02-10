@@ -13,7 +13,7 @@ builder.Services.AddRazorComponents()
 var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
 builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
 
-builder.Services.AddScoped<ViajesEspacialesService>();
+builder.Services.AddScoped<EntradasHuacalesService>();
 
 builder.Services.AddBlazoredToast();
 
