@@ -6,12 +6,16 @@ public class EntradasHuacales
     public int IdEntrada { get; set; }
 
     [Required(ErrorMessage = "Campo Obligatorio")]
-    public DateTime Fecha { get; set; }
+    public DateTime Fecha { get; set; } = DateTime.Now;
 
     [Required(ErrorMessage = "Campo Obligatorio")]
-    public string Descripcion { get; set; } = string.Empty;
+    public string NombreCliente { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Campo Obligatorio")]
+    [Range(1, int.MaxValue, ErrorMessage = "Campo no debe contener valores negativos.")]
+    public int Cantidad { get; set; }
 
     [Required(ErrorMessage = "Campo Obligatorio")]
     [Range(1, Double.MaxValue, ErrorMessage = "Campo no debe contener valores negativos.")]
-    public double Cost { get; set; }
+    public decimal Precio { get; set; }
 }
