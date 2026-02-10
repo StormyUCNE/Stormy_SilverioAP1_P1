@@ -6,7 +6,7 @@ public class EntradasHuacales
     public int IdEntrada { get; set; }
 
     [Required(ErrorMessage = "Campo Obligatorio")]
-    public DateTime Fecha { get; set; } = DateTime.Now;
+    public DateOnly Fecha { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
     [Required(ErrorMessage = "Campo Obligatorio")]
     public string NombreCliente { get; set; } = string.Empty;

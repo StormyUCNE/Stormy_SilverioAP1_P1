@@ -33,8 +33,8 @@ namespace Stormy_SilverioAP1_P1.Migrations
                     b.Property<int>("Cantidad")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("Fecha")
+                        .HasColumnType("date");
 
                     b.Property<string>("NombreCliente")
                         .IsRequired()

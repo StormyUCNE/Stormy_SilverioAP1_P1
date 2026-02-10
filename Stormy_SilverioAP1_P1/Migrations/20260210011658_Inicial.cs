@@ -17,7 +17,7 @@ namespace Stormy_SilverioAP1_P1.Migrations
                 {
                     IdEntrada = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Fecha = table.Column<DateOnly>(type: "date", nullable: false),
                     NombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Cantidad = table.Column<int>(type: "int", nullable: false),
                     Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
