@@ -12,8 +12,8 @@ using Stormy_SilverioAP1_P1.DAL;
 namespace Stormy_SilverioAP1_P1.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20260210011658_Inicial")]
-    partial class Inicial
+    [Migration("20260216192214_Mejoras")]
+    partial class Mejoras
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
