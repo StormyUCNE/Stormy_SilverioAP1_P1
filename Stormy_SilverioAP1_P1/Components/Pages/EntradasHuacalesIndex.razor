@@ -68,7 +68,7 @@
         @*Conteo y Total*@
         <div class="card-footer d-flex justify-content-between">
             <label>Cantidad: @ListaHuacales.Count()</label>
-            <label>Total: @ListaHuacales.Sum(h=>h.Precio)</label>
+            <label>Total: @ListaHuacales.Sum(h=>h.Precio * h.Cantidad)</label>
         </div>   
     </div>
 </div>
