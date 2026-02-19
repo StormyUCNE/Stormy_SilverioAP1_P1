@@ -3,17 +3,33 @@
 @rendermode InteractiveServer
 @inject EntradasHuacalesService entradasHuacalesService
 <PageTitle>Registro de Entradas Huacales</PageTitle>
-<div class="container">
+<div class="container mb-5">
     <div class="card shadow-lg">
         <div class="card-header d-flex justify-content-between">
             <h5 class="card-title">Registro de Entradas Huacales</h5>
-            <a href="EntradasHuacales/Create" class="d-flex gap-2 btn btn-outline-primary">
+            <a href="EntradasHuacales/Create" class="d-flex gap-2 btn btn-outline-primary h-25 align-ite">
                 <i class="bi bi-plus"></i>
                 <span>Crear</span>
             </a>
         </div>
         <div class="card-body">
-            @*Label e Inputs*@
+            @*Label e Inputs Para Fecha*@
+            <div class="row">
+                <div class="col-lg-5 col-md-5">
+                    <label class="form-label">Fecha de Inicio</label>
+                    <input type="date" class="form-control" placeholder="Buscar" @bind="ValorFechaInicial" />
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <label class="form-label">Fecha Final</label>
+                    <input type="date" class="form-control" placeholder="Buscar" @bind="ValorFechaFinal" />  
+                </div>
+                <div class="col-lg-1 col-md-1 mb-2 mt-0">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <i class="btn btn-outline-primary bi bi-arrow-repeat form-control" @onclick="Refrescar"></i>
+                </div>
+            </div>
+
+            @*Label e Inputs Para Filtro Normal*@
             <div class="row">
                 <div class="col-lg-6">
                     <label class="form-label">Seleccione una Opción</label>
@@ -36,39 +52,23 @@
 
             @*Table*@
             <div class="table-responsive mt-2">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>IdEntrada</th>
-                            <th>Fecha</th>
-                            <th>Nombre Cliente</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th>Opciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach(var h in ListaHuacales)
-                        {
-                            <tr>
-                                <td>@h.IdEntrada</td>
-                                <td>@h.Fecha.ToString("dd/MM/yyyy")</td>
-                                <td>@h.NombreCliente</td>
-                                <td>@h.Cantidad</td>
-                                <td>@h.Precio</td>
-                                <td>
-                                    <a href="EntradasHuacales/Edit/@h.IdEntrada" class="btn btn-outline-primary bi bi-pencil-fill"></a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <QuickGrid Items="@ListaHuacales.AsQueryable()" Class="table table-bordered table-striped" Pagination="pagina">
+                    <PropertyColumn Property="@(p => p.IdEntrada)" Title="IdEntrada" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.Fecha)" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.NombreCliente)" Title="Nombre Cliente" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.Cantidad)" Title="Cantidad" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.Precio)" Title="Precio" Format="N2" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <a href="EntradasHuacales/Edit/@context.IdEntrada" class="btn btn-outline-primary bi bi-pencil-fill"></a>
+                    </TemplateColumn>
+                </QuickGrid>
             </div>
+            <Paginator State="@pagina"/>
         </div>
         @*Conteo y Total*@
         <div class="card-footer d-flex justify-content-between">
             <label>Cantidad: @ListaHuacales.Count()</label>
-            <label>Total: @ListaHuacales.Sum(h=>h.Precio * h.Cantidad)</label>
+            <label>Total: @ListaHuacales.Sum(h=>h.Precio * h.Cantidad).ToString("N2")</label>
         </div>   
     </div>
 </div>
@@ -77,37 +77,32 @@
     public List<EntradasHuacales> ListaHuacales = new List<EntradasHuacales>();
     public string Filtro { get; set; } = string.Empty;
     public string ValorFiltro { get; set; } = string.Empty;
+    public DateTime ValorFechaInicial { get; set; } = DateTime.Today.Date;
+    public DateTime ValorFechaFinal { get; set; } = DateTime.Today.Date.AddDays(1);
+    PaginationState pagina = new PaginationState { ItemsPerPage = 5 };
 
     protected override async Task OnInitializedAsync()
     {
         ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
     }
 
+    private async Task Refrescar()
+    {
+        ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+        Filtro = string.Empty;
+        ValorFiltro = string.Empty;
+        ValorFechaInicial = DateTime.Today.Date;
+        ValorFechaFinal = DateTime.Today.Date.AddDays(1);
+    }
+
     private async Task Buscar()
     {
+        var listado = await entradasHuacalesService.Listar(f => f.Fecha.Date >= ValorFechaInicial && f.Fecha.Date <= ValorFechaFinal);
         if (ValorFiltro.Trim() != "")
         {
             if (Filtro == "Nombre")
-                ListaHuacales = await entradasHuacalesService.Listar(h => h.NombreCliente.ToLower().Contains(ValorFiltro.ToLower()));
-            else if (Filtro == "Precio")
-                if (decimal.TryParse(ValorFiltro, out decimal ValorFiltroDecimal))
-                    ListaHuacales = await entradasHuacalesService.Listar(h => h.Precio == ValorFiltroDecimal);
-                else
-                    ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
-            else if (Filtro == "Cantidad")
-                if (int.TryParse(ValorFiltro, out int ValorFiltroEntero))
-                    ListaHuacales = await entradasHuacalesService.Listar(h => h.Cantidad == ValorFiltroEntero);
-                else
-                    ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
-            else if (Filtro == "Fecha")
-                if (DateOnly.TryParseExact(ValorFiltro, "dd/MM/yyyy", out var Fecha))
-                    ListaHuacales = await entradasHuacalesService.Listar(h => h.Fecha == Fecha);
-                else
-                    ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+                listado = listado.Where(h => h.NombreCliente.ToLower().Contains(ValorFiltro.ToLower())).ToList();
         }
-        else
-        {
-            ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
-        }             
+        ListaHuacales = listado;
     }
 }
