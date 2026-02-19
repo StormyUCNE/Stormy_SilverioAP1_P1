@@ -12,10 +12,10 @@ public class EntradasHuacales
     public string NombreCliente { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Campo Obligatorio")]
-    [Range(1, int.MaxValue, ErrorMessage = "Campo no debe contener valores negativos.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Campo no debe contener valores menor a 1")]
     public int Cantidad { get; set; }
 
     [Required(ErrorMessage = "Campo Obligatorio")]
-    [Range(1, Double.MaxValue, ErrorMessage = "Campo no debe contener valores negativos.")]
+    [Range(1, Double.MaxValue, ErrorMessage = "Campo no debe contener valores menor a 1.")]
     public decimal Precio { get; set; }
 }

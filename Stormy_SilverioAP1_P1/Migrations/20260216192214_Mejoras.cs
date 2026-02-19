@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Stormy_SilverioAP1_P1.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class Mejoras : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
