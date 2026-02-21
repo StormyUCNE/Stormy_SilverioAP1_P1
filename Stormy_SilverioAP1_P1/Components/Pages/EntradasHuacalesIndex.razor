@@ -23,10 +23,6 @@
                     <label class="form-label">Fecha Final</label>
                     <input type="date" class="form-control" placeholder="Buscar" @bind="ValorFechaFinal" />  
                 </div>
-                <div class="col-lg-1 col-md-1 mb-2 mt-0">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <i class="btn btn-outline-primary bi bi-arrow-repeat form-control" @onclick="Refrescar"></i>
-                </div>
             </div>
 
             @*Label e Inputs Para Filtro Normal*@
@@ -36,9 +32,6 @@
                     <select class="form-select" @bind="Filtro">
                         <option value="">Seleccione una Opción</option>
                         <option value="Nombre">Nombre</option>
-                        <option value="Fecha">Fecha</option>
-                        <option value="Cantidad">Cantidad</option>
-                        <option value="Precio">Precio</option>
                     </select>
                 </div>
                 <div class="col-lg-6">
@@ -66,8 +59,7 @@
             <Paginator State="@pagina"/>
         </div>
         @*Conteo y Total*@
-        <div class="card-footer d-flex justify-content-between">
-            <label>Cantidad: @ListaHuacales.Count()</label>
+        <div class="card-footer">
             <label>Total: @ListaHuacales.Sum(h=>h.Precio * h.Cantidad).ToString("N2")</label>
         </div>   
     </div>
@@ -77,8 +69,8 @@
     public List<EntradasHuacales> ListaHuacales = new List<EntradasHuacales>();
     public string Filtro { get; set; } = string.Empty;
     public string ValorFiltro { get; set; } = string.Empty;
-    public DateTime ValorFechaInicial { get; set; } = DateTime.Today.Date;
-    public DateTime ValorFechaFinal { get; set; } = DateTime.Today.Date.AddDays(1);
+    public DateTime? ValorFechaInicial { get; set; } = DateTime.Today.Date;
+    public DateTime? ValorFechaFinal { get; set; } = DateTime.Today.Date.AddDays(1);
     PaginationState pagina = new PaginationState { ItemsPerPage = 5 };
 
     protected override async Task OnInitializedAsync()
@@ -97,12 +89,12 @@
 
     private async Task Buscar()
     {
-        var listado = await entradasHuacalesService.Listar(f => f.Fecha.Date >= ValorFechaInicial && f.Fecha.Date <= ValorFechaFinal);
+        List<EntradasHuacales> listado = await entradasHuacalesService.Listar(f => f.IdEntrada > 0);
+        if (ValorFechaInicial.HasValue && ValorFechaFinal.HasValue)
+            listado = listado.Where(f => f.Fecha.Date >= ValorFechaInicial.Value.Date && f.Fecha.Date <= ValorFechaFinal.Value.Date).ToList();
         if (ValorFiltro.Trim() != "")
-        {
             if (Filtro == "Nombre")
-                listado = listado.Where(h => h.NombreCliente.ToLower().Contains(ValorFiltro.ToLower())).ToList();
-        }
+                listado = listado.Where(h => h.NombreCliente.ToLower().Contains(ValorFiltro.ToLower())).ToList();  
         ListaHuacales = listado;
     }
 }
