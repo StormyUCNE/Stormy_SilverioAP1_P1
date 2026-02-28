@@ -2,12 +2,12 @@
 @inject IToastService toastService
 @rendermode InteractiveServer
 @inject EntradasHuacalesService entradasHuacalesService
+@inject TiposHuacalesService tiposHuacalesService
 @inject NavigationManager navigationManager
 
 <PageTitle>Crear Entradas de Huacales</PageTitle>
-<EditForm Model="EntradasHuacales" OnValidSubmit="Guardar">
-    <DataAnnotationsValidator/>
-
+<EditForm Model="EntradasHuacales" OnValidSubmit="Guardar" Context="editContext">
+    <DataAnnotationsValidator />
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header">
@@ -19,23 +19,60 @@
                 <div>
                     <label class="form-label">Fecha</label>
                     <InputDate @bind-Value="EntradasHuacales.Fecha" class="form-control"></InputDate>
-                    <ValidationMessage For="()=> EntradasHuacales.Fecha"/>
+                    <ValidationMessage For="() => EntradasHuacales.Fecha" />
                 </div>
                 <div>
                     <label class="form-label">Nombre Cliente</label>
-                    <InputText @bind-Value="EntradasHuacales.NombreCliente" class="form-control"></InputText>
-                    <ValidationMessage For="() => EntradasHuacales.NombreCliente" />
+                    <InputText @bind-Value="EntradasHuacales.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="() => EntradasHuacales.Nombre" />
                 </div>
+            </div>
+
+            <div class="container">
                 <div>
-                    <label class="form-label">Cantidad</label>
-                    <InputNumber @bind-Value="EntradasHuacales.Cantidad" class="form-control"></InputNumber>
-                    <ValidationMessage For="() => EntradasHuacales.Cantidad" />
+                    <h4>Hucales del CLiente</h4>
                 </div>
-                <div>
-                    <label class="form-label">Precio</label>
-                    <InputNumber @bind-Value="EntradasHuacales.Precio" class="form-control"></InputNumber>
-                    <ValidationMessage For="() => EntradasHuacales.Precio" />
+                <div class="row">
+                    <div class="col-3">
+                        <label class="form-label">Tipo de Huacal</label>
+                        <InputSelect @bind-Value="DetalleHuacales.TipoId" class="form-select">
+                            <option value="0">Seleccione un Tipo de Huacal</option>
+                            @foreach (var t in ListaTipoHuacales)
+                            {
+                                <option value="@t.TipoId">@t.Descripcion</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => DetalleHuacales.TipoId" />
+                    </div>
+                    <div class="col-3">
+                        <label class="form-label">Cantidad</label>
+                        <InputNumber @bind-Value="DetalleHuacales.Cantidad" class="form-control"></InputNumber>
+                        <ValidationMessage For="() => DetalleHuacales.Cantidad" />
+                    </div>
+                    <div class="col-3">
+                        <label class="form-label">Precio</label>
+                        <InputNumber @bind-Value="DetalleHuacales.Precio" class="form-control"></InputNumber>
+                        <ValidationMessage For="() => DetalleHuacales.Precio" />
+                    </div>
+                    <div class="col-3">
+                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" @onclick="GuardarDetalle">Agregar</button>
+                    </div>
                 </div>
+
+                <div class="mt-2">
+                    <QuickGrid Items="@EntradasHuacales.ListaHuacales.AsQueryable()" Class="table table-bordered table-striped">
+                        <PropertyColumn Property="@(p => p.TipoId)" Title="IdEntrada" Sortable="true" />
+                        <TemplateColumn Title="Descripción">
+                            @ListaTipoHuacales.FirstOrDefault(t => t.TipoId == context.TipoId)?.Descripcion
+                        </TemplateColumn>
+                        <PropertyColumn Property="@(p => p.Cantidad)" Title="Cantidad" Sortable="true" />
+                        <PropertyColumn Property="@(p => p.Precio)" Title="Precio" Sortable="true" />
+                        <TemplateColumn Title="Opciones">
+                            <button class="btn btn-outline-danger bi bi-trash" @onclick="() => EliminarDetalle(context)">Eliminar</button>
+                        </TemplateColumn>
+                    </QuickGrid>
+                </div>
+
             </div>
             
             @*Botones*@
@@ -54,9 +91,20 @@
 
 @code {
     public EntradasHuacales EntradasHuacales = new EntradasHuacales();
-
+    public DetallesHuacales? DetalleHuacales = new DetallesHuacales();
+    public List<TiposHuacales> ListaTipoHuacales = new List<TiposHuacales>();
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTipoHuacales = await tiposHuacalesService.Listar(t => t.TipoId > 0);
+    }
     private async Task Guardar()
     {
+        if(EntradasHuacales.ListaHuacales.Count() == 0)
+        {
+            toastService.ShowError("El registro debe de tener al menos un Tipo de Huacal.");
+            return;
+        }
+            
         var creado = await entradasHuacalesService.Guardar(EntradasHuacales);
         if (creado)
         {
@@ -67,5 +115,38 @@
         {
             toastService.ShowSuccess("Huacal No Pudo Ser Creado Correctamente");
         }
+    }
+    private async Task EliminarDetalle(DetallesHuacales detalle)
+    {
+        if (EntradasHuacales.ListaHuacales.Count() == 1)
+        {
+            toastService.ShowError("Error, No puedes dejar la Lista Vacía.");
+            return;
+        }
+        EntradasHuacales.ListaHuacales.Remove(detalle);
+    }
+    private void GuardarDetalle()
+    {
+        if (DetalleHuacales == null || DetalleHuacales.TipoId == 0)
+            return;
+
+        bool yaExiste = EntradasHuacales.ListaHuacales
+        .Any(h => h.TipoId == DetalleHuacales.TipoId);
+
+        if (yaExiste)
+        {
+            toastService.ShowError("Error, Tipo de Huacal ya fue registrado");
+            return;
+        }
+        var detalle = new DetallesHuacales
+        {
+            TipoId = DetalleHuacales.TipoId,
+            Cantidad = DetalleHuacales.Cantidad,
+            Precio = DetalleHuacales.Precio
+        };
+
+        EntradasHuacales.ListaHuacales.Add(detalle);
+
+        DetalleHuacales = new DetallesHuacales();
     }
 }
