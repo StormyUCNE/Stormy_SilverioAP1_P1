@@ -1,0 +1,57 @@
+﻿@page "/TiposHuacales/Create"
+@inject IToastService toastService
+@rendermode InteractiveServer
+@inject NavigationManager navigationManager
+@inject TiposHuacalesService tiposHuacalesService
+
+<PageTitle>Crear Tipo de Huacal</PageTitle>
+<EditForm Model="TiposHuacales" OnValidSubmit="Guardar" Context="editContext">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h5 class="card-title">Crear Tipo Huacal</h5>
+            </div>
+            @*Inputs*@
+            <div class="card-body">
+                <div>
+                    <label class="form-label">Descripción</label>
+                    <InputText @bind-Value="TiposHuacales.Descripcion" class="form-control"></InputText>
+                    <ValidationMessage For="() => TiposHuacales.Descripcion" />
+                </div>
+                <div>
+                    <label class="form-label">Existencia</label>
+                    <InputNumber @bind-Value="TiposHuacales.Existencia" class="form-control"></InputNumber>
+                    <ValidationMessage For="() => TiposHuacales.Existencia" />
+                </div>
+            </div>
+            @*Botones*@
+            <div class="card-footer d-flex justify-content-center gap-2">
+                <a href="TiposHuacales/Index" class="d-flex gap-2 btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Volver</span>
+                </a>
+                <button class="btn btn-outline-primary bi bi-save">Guardar</button>
+            </div>
+        </div>
+
+    </div>
+</EditForm>
+@code {
+    public TiposHuacales TiposHuacales = new TiposHuacales();
+
+    private async Task Guardar()
+    {
+        if(await tiposHuacalesService.ExisteDuplicado(TiposHuacales))
+        {
+            toastService.ShowError("Error, no se aceptan registros con dos descripciones iguales.");
+            return;
+        }
+        var agregado = await tiposHuacalesService.Guardar(TiposHuacales);
+        if (agregado)
+        {
+            toastService.ShowSuccess("Tipo Huacal guardado correctamente");
+            navigationManager.NavigateTo("TiposHuacales/Index");
+        }
+    }
+}

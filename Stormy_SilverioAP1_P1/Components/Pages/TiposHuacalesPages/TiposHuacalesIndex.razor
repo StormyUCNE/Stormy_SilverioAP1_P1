@@ -1,0 +1,67 @@
+﻿@page "/TiposHuacales/Index"
+@inject IToastService toastService
+@rendermode InteractiveServer
+@inject TiposHuacalesService tiposHuacalesService
+<PageTitle>Registro de Tipos Huacales</PageTitle>
+<div class="container mb-5">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between">
+            <h5 class="card-title">Registro de Tipos Huacales</h5>
+            <a href="TiposHuacales/Create" class="d-flex gap-2 btn btn-outline-primary h-25 align-ite">
+                <i class="bi bi-plus"></i>
+                <span>Crear</span>
+            </a>
+        </div>
+        <div class="card-body">
+            @*Label e Inputs Para Filtro Normal*@
+            <div class="row">
+                <div class="col-lg-6">
+                    <label class="form-label">Seleccione una Opción</label>
+                    <select class="form-select" @bind="Filtro">
+                        <option value="">Seleccione una Opción</option>
+                        <option value="Descripcion">Descripción</option>
+                    </select>
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar" @bind="ValorFiltro" />
+                        <button type="button" @onclick="Buscar"  class="btn btn-primary bi bi-search"></button>
+                    </div>
+                </div>
+            </div>
+
+            @*Table*@
+            <div class="table-responsive mt-2">
+                <QuickGrid Items="@ListaTiposHuacales.AsQueryable()" Class="table table-bordered table-striped" Pagination="pagina">
+                    <PropertyColumn Property="@(p => p.TipoId)" Title="TipoId" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.Descripcion)" Title="Descripción" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.Existencia)" Title="Existencia" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <a href="TiposHuacales/Edit/@context.TipoId" class="btn btn-outline-primary bi bi-pencil-fill"></a>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+            <Paginator State="@pagina" />
+        </div>
+    </div>
+</div>
+@code {
+    public List<TiposHuacales> ListaTiposHuacales = new List<TiposHuacales>();
+    public string Filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+    PaginationState pagina = new PaginationState { ItemsPerPage = 5 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTiposHuacales = await tiposHuacalesService.Listar(t => t.TipoId > 0);
+    }
+
+    private async Task Buscar()
+    {
+        if (ValorFiltro.Trim() != "")
+            ListaTiposHuacales = await tiposHuacalesService.Listar(t => t.Descripcion.ToLower().Contains(ValorFiltro.ToLower()));
+        else
+            ListaTiposHuacales = await tiposHuacalesService.Listar(t => t.TipoId > 0);
+    }
+}
