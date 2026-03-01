@@ -10,6 +10,6 @@ public class TiposHuacales
     public string Descripcion { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Este Campo es Requerido")]
-    [Range(1, int.MaxValue, ErrorMessage = "Cantidad debe de ser mayor a cero")]
+    [Range(0, int.MaxValue, ErrorMessage = "Cantidad no puede ser negativa")]
     public int Existencia { get; set; }
 }
