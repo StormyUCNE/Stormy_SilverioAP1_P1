@@ -12,7 +12,7 @@ using Stormy_SilverioAP1_P1.DAL;
 namespace Stormy_SilverioAP1_P1.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20260228045340_Inicial")]
+    [Migration("20260301050758_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
