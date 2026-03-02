@@ -34,7 +34,7 @@
                     <h4>Hucales del Cliente</h4>
                 </div>
                 <div class="row">
-                    <div class="col-3">
+                    <div class="col-md-3">
                         <label class="form-label">Tipo de Huacal</label>
                         <InputSelect @bind-Value="DetallesHuacales.TipoId" class="form-select">
                             <option value="0">Seleccione un Tipo de Huacal</option>
@@ -45,18 +45,18 @@
                         </InputSelect>
                         <label class="text-danger">@mensajeTipo</label>
                     </div>
-                    <div class="col-3">
+                    <div class="col-md-3">
                         <label class="form-label">Cantidad</label>
                         <InputNumber @bind-Value="DetallesHuacales.Cantidad" class="form-control"></InputNumber>
                         <label class="text-danger">@mensajeCantidad</label>
                     </div>
-                    <div class="col-3">
+                    <div class="col-md-3">
                         <label class="form-label">Precio</label>
                         <InputNumber @bind-Value="DetallesHuacales.Precio" class="form-control"></InputNumber>
                         <label class="text-danger">@mensajePrecio</label>
                     </div>
-                    <div class="col-3">
-                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" @onclick="GuardarDetalle">Agregar</button>
+                    <div class="col-md-3 col-12 d-flex justify-content-center d-md-block">
+                        <button type="button" class="btn btn-outline-primary bi bi-plus-square mt-md-4" @onclick="GuardarDetalle">Agregar</button>
                     </div>
                 </div>
 
@@ -72,6 +72,9 @@
                             <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="() => EliminarDetalle(context)">Eliminar</button>
                         </TemplateColumn>
                     </QuickGrid>
+                    <div class="mt-2">
+                        <label class="fw-bolder">Cantidad: @EntradasHuacales.ListaHuacales.Count()</label>
+                    </div>
                 </div>
 
             </div>
