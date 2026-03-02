@@ -2,6 +2,7 @@
 @inject IToastService toastService
 @rendermode InteractiveServer
 @inject EntradasHuacalesService entradasHuacalesService
+
 <PageTitle>Registro de Entradas Huacales</PageTitle>
 <div class="container mb-5">
     <div class="card shadow-lg">
@@ -21,7 +22,7 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <label class="form-label">Hasta</label>
-                    <input type="date" class="form-control" placeholder="Buscar" @bind="ValorFechaFinal" />  
+                    <input type="date" class="form-control" placeholder="Buscar" @bind="ValorFechaFinal" />
                 </div>
             </div>
 
@@ -45,28 +46,26 @@
 
             @*Table*@
             <div class="table-responsive mt-2">
-                <QuickGrid Items="@ListaHuacales.AsQueryable()" Class="table table-bordered table-striped" Pagination="pagina">
-                    <PropertyColumn Property="@(p => p.IdEntrada)" Title="IdEntrada" Sortable="true" />
+                <QuickGrid Items="@ListaEntradas.AsQueryable()" Class="table table-bordered table-striped" Pagination="pagina">
+                    <PropertyColumn Property="@(p => p.EntradaId)" Title="IdEntrada" Sortable="true" />
                     <PropertyColumn Property="@(p => p.Fecha)" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
-                    <PropertyColumn Property="@(p => p.NombreCliente)" Title="Nombre Cliente" Sortable="true" />
-                    <PropertyColumn Property="@(p => p.Cantidad)" Title="Cantidad" Sortable="true" />
-                    <PropertyColumn Property="@(p => p.Precio)" Title="Precio" Format="N2" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.Nombre)" Title="Nombre Cliente" Sortable="true" />
                     <TemplateColumn Title="Opciones">
-                        <a href="EntradasHuacales/Edit/@context.IdEntrada" class="btn btn-outline-primary bi bi-pencil-fill"></a>
+                        <a href="EntradasHuacales/Edit/@context.EntradaId" class="btn btn-outline-primary bi bi-pencil-fill"></a>
                     </TemplateColumn>
                 </QuickGrid>
             </div>
-            <Paginator State="@pagina"/>
+            <Paginator State="@pagina" />
         </div>
         @*Conteo y Total*@
         <div class="card-footer">
-            <label>Total: @ListaHuacales.Sum(h=>h.Precio * h.Cantidad).ToString("N2")</label>
-        </div>   
+            <label>Total Global: @ListaEntradas.SelectMany(e => e.ListaHuacales).Sum(e => e.Cantidad * e.Precio).ToString("N2")</label>
+        </div>
     </div>
 </div>
 
 @code {
-    public List<EntradasHuacales> ListaHuacales = new List<EntradasHuacales>();
+    public List<EntradasHuacales> ListaEntradas = new List<EntradasHuacales>();
     public string Filtro { get; set; } = string.Empty;
     public string ValorFiltro { get; set; } = string.Empty;
     public DateTime? ValorFechaInicial { get; set; } = DateTime.Today.Date;
@@ -75,26 +74,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
+        ListaEntradas = await entradasHuacalesService.Listar(h => h.EntradaId > 0);
     }
-
-    private async Task Refrescar()
-    {
-        ListaHuacales = await entradasHuacalesService.Listar(h => h.IdEntrada > 0);
-        Filtro = string.Empty;
-        ValorFiltro = string.Empty;
-        ValorFechaInicial = DateTime.Today.Date;
-        ValorFechaFinal = DateTime.Today.Date.AddDays(1);
-    }
-
     private async Task Buscar()
     {
-        List<EntradasHuacales> listado = await entradasHuacalesService.Listar(f => f.IdEntrada > 0);
+        List<EntradasHuacales> listado = await entradasHuacalesService.Listar(f => f.EntradaId > 0);
         if (ValorFechaInicial.HasValue && ValorFechaFinal.HasValue)
             listado = listado.Where(f => f.Fecha.Date >= ValorFechaInicial.Value.Date && f.Fecha.Date <= ValorFechaFinal.Value.Date).ToList();
         if (ValorFiltro.Trim() != "")
             if (Filtro == "Nombre")
-                listado = listado.Where(h => h.NombreCliente.ToLower().Contains(ValorFiltro.ToLower())).ToList();  
-        ListaHuacales = listado;
+                listado = listado.Where(h => h.Nombre.ToLower().Contains(ValorFiltro.ToLower())).ToList();
+        ListaEntradas = listado;
     }
 }
